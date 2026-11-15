@@ -81,6 +81,21 @@ class IntelligenceEngineTest {
     }
 
     @Test
+    @DisplayName("Correlation: a root inferred only from dependents is a possible cause, never a major incident")
+    void inferredRootIsNotMajor() {
+        ITService erp = serviceDependingOn("ERP", coreDb);
+        Incident pay = TestData.incident("Payments slow", "Checkout takes minutes to complete", payment, T0);
+        Incident portal = TestData.incident("HR portal timeout", "HR portal times out on payslips", hr, T0);
+        Incident reports = TestData.incident("ERP reports failing", "Month-end reports time out", erp, T0);
+
+        List<CorrelationCluster> clusters = new IncidentCorrelator().correlate(List.of(pay, portal, reports), 3);
+        assertThat(clusters).hasSize(1);
+        assertThat(clusters.get(0).probableRoot()).isSameAs(coreDb);
+        assertThat(clusters.get(0).majorIncident()).isFalse();
+        assertThat(clusters.get(0).explanation()).startsWith("Possible shared cause");
+    }
+
+    @Test
     @DisplayName("SLA risk: an unassigned incident near its deadline is HIGH risk; a fresh one is LOW")
     void slaRisk() {
         Incident i = TestData.classifiedIncident(network, email, Priority.P2, TestData.policy(Priority.P2, 15, 120));

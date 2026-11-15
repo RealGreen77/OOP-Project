@@ -19,8 +19,10 @@ import java.util.Set;
  * (which both depend on) also has an incident -> one cluster rooted at Core Database.
  *
  * Algorithm: every incident "votes" for its own service and its direct dependencies. Services are
- * then taken greedily by (votes desc, direct incidents desc, dependency depth desc); each incident joins
- * at most one cluster. Clusters of size >= 2 are reported; size >= {@code majorThreshold} is a major incident.
+ * then taken greedily - services that have their own incidents first (evidence), then by votes, direct incidents
+ * and number of dependents; each incident joins at most one cluster. Clusters of size >= 2 are reported. A cluster
+ * of size >= {@code majorThreshold} whose root has its own incidents is a major incident; a root inferred only
+ * from dependents (3+) is reported as a possible shared cause, never as a major incident.
  *
  * // [Intelligent Feature B] Incident Correlation.
  * // [Collections] HashMap of service -> incident lists; HashSet to ensure each incident is clustered once.
@@ -49,7 +51,9 @@ public class IncidentCorrelator {
         }
 
         List<Long> order = new ArrayList<>(votes.keySet());
-        order.sort(Comparator.<Long>comparingInt(id -> votes.get(id).size()).reversed()
+        // Evidence first: services with their own incidents are considered before purely inferred roots.
+        order.sort(Comparator.<Long, Boolean>comparing(id -> !direct.containsKey(id))
+                .thenComparing(Comparator.<Long>comparingInt(id -> votes.get(id).size()).reversed())
                 .thenComparing(Comparator.<Long>comparingInt(id -> direct.getOrDefault(id, List.of()).size()).reversed())
                 .thenComparing(Comparator.<Long>comparingInt(id -> dependentsCount(services.get(id), services)).reversed()));
 
@@ -65,9 +69,10 @@ public class IncidentCorrelator {
             if (directHere.isEmpty() && dependents.size() < 3) continue;
 
             remaining.forEach(i -> clustered.add(i.getId()));
-            boolean major = remaining.size() >= majorThreshold;
+            // Only a root with its own incidents is "confirmed"; an inferred root is a hypothesis, never a major incident.
+            boolean major = !directHere.isEmpty() && remaining.size() >= majorThreshold;
             String explanation = directHere.isEmpty()
-                    ? String.format("%d incidents on services that all depend on %s", dependents.size(), root.getName())
+                    ? String.format("Possible shared cause: %d incidents on services that depend on %s", dependents.size(), root.getName())
                     : dependents.isEmpty()
                         ? String.format("%d incidents reported directly against %s", directHere.size(), root.getName())
                         : String.format("%d incident(s) on %s and %d on dependent services", directHere.size(),
