@@ -182,3 +182,10 @@ cd frontend && npm test          # Vitest
 - [docs/DESIGN.md](docs/DESIGN.md) — architecture, UML (use case, class, state, sequence), ER diagram, algorithms
 - [docs/TECHNOLOGY.md](docs/TECHNOLOGY.md) — technology selection report (the 9 questions)
 - [docs/TEST_CASES.md](docs/TEST_CASES.md) — documented test cases mapped to automated tests
+
+## Sending real e-mail (optional)
+
+By default every e-mail goes to the Mailpit catcher at http://localhost:8025. To deliver to real inboxes,
+copy `.env.example` to `.env`, uncomment the `SMTP_*` / `MAIL_FROM` lines and fill in a provider
+(for Gmail use an **app password**, not your normal password), then run `docker compose up -d`.
+Users receive e-mail at the address on their account, so register with a real address to test.
