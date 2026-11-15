@@ -1,7 +1,7 @@
 # I-ITSM — Test Cases
 
 **Automated suite.**
-- Backend: **57 tests** with ~79% instruction coverage (JaCoCo). Run with `cd backend && ./mvnw verify`.
+- Backend: **58 tests** with ~79% instruction coverage (JaCoCo). Run with `cd backend && ./mvnw verify`.
 - Frontend: **7 tests** (Vitest + Testing Library). Run with `cd frontend && npm test`.
 
 Every case below is automated. The *Test* column names the JUnit method that implements it.
