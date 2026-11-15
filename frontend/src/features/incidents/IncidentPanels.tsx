@@ -15,8 +15,8 @@ export function SlaPanel({ incident }: { incident: IncidentDetail }) {
   const active = !incident.resolvedAt;
   const pct = Math.min(100, sla.elapsedPercent);
   const bar = sla.status === 'BREACHED' ? 'bg-red-500' : sla.status === 'AT_RISK' ? 'bg-amber-500' : sla.status === 'PAUSED' ? 'bg-sky-500' : 'bg-emerald-500';
-  const resp = fmtCountdown(sla.responseDeadline);
-  const reso = fmtCountdown(sla.resolutionDeadline);
+  const resp = sla.paused ? { label: 'paused', overdue: false } : fmtCountdown(sla.responseDeadline);
+  const reso = sla.paused ? { label: 'clock stopped', overdue: false } : fmtCountdown(sla.resolutionDeadline);
   const risk = incident.slaRisk;
   return (
     <Card title={<span className="flex items-center gap-2"><Gauge className="size-4" /> Service level</span>} actions={<SlaBadge status={sla.status} />}>

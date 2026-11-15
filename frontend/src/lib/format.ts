@@ -14,6 +14,18 @@ export function fmtCountdown(iso?: string): { label: string; overdue: boolean } 
   return diff >= 0 ? { label: `in ${text}`, overdue: false } : { label: `overdue ${text}`, overdue: true };
 }
 
+/**
+ * Countdown to the resolution deadline that respects the SLA state: a paused clock never runs
+ * overdue (its deadline moves on resume), and a breach caused only by a late response says so
+ * instead of showing "Breached" next to a future deadline.
+ */
+export function slaCountdown(status: SlaStatus | undefined, deadline?: string): { label: string; overdue: boolean } {
+  if (status === 'PAUSED') return { label: 'clock stopped', overdue: false };
+  const c = fmtCountdown(deadline);
+  if (status === 'BREACHED' && !c.overdue && deadline) return { label: `response late · due ${c.label}`, overdue: true };
+  return c;
+}
+
 export function fmtMinutes(m?: number | null): string {
   if (m === undefined || m === null) return '—';
   if (m < 60) return `${Math.round(m)} min`;

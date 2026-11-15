@@ -48,8 +48,8 @@ export function TrendChart({ data }: { data: { date: string; reported: number; r
         <YAxis allowDecimals={false} tick={{ fill: theme.axis, fontSize: 11 }} tickLine={false} axisLine={false} />
         <Tooltip {...tooltipStyle(theme)} cursor={{ stroke: theme.axis, strokeDasharray: '3 3' }} />
         <Legend iconType="plainline" wrapperStyle={{ fontSize: 12, color: theme.axis }} />
-        <Line type="monotone" dataKey="reported" name="Reported" stroke={theme.series[0]} strokeWidth={2} dot={false} activeDot={{ r: 4, stroke: theme.surface, strokeWidth: 2 }} />
-        <Line type="monotone" dataKey="resolved" name="Resolved" stroke={theme.series[1]} strokeWidth={2} dot={false} activeDot={{ r: 4, stroke: theme.surface, strokeWidth: 2 }} />
+        <Line type="linear" dataKey="reported" name="Reported" stroke={theme.series[0]} strokeWidth={2} dot={false} activeDot={{ r: 4, stroke: theme.surface, strokeWidth: 2 }} />
+        <Line type="linear" dataKey="resolved" name="Resolved" stroke={theme.series[1]} strokeWidth={2} dot={false} activeDot={{ r: 4, stroke: theme.surface, strokeWidth: 2 }} />
       </LineChart>
     </ResponsiveContainer>
   );

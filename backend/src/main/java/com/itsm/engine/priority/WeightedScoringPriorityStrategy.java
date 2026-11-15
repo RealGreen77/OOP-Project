@@ -53,7 +53,7 @@ public class WeightedScoringPriorityStrategy implements PriorityStrategy {
     @Override
     public String description() {
         return "0-100 score: 35% impact, 30% urgency, 20% criticality, 15% affected users; "
-                + "+8 if the service had 3+ incidents in 24h. P1>=75, P2>=55, P3>=35.";
+                + "+8 if the service had 3+ incidents in 24h. P1 ≥ 75, P2 ≥ 55, P3 ≥ 35.";
     }
 
     @Override

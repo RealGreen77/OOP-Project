@@ -80,7 +80,7 @@ export function LoginPage() {
           </p>
 
           <div className="surface rounded-xl border border-base p-4">
-            <div className="mb-3 text-xs font-semibold uppercase tracking-wide text-muted">Demo accounts (password {DEMO_PASSWORD})</div>
+            <div className="mb-3 text-xs font-semibold uppercase tracking-wide text-muted">Demo accounts <span className="font-mono normal-case tracking-normal">· password {DEMO_PASSWORD}</span></div>
             <div className="grid gap-2">
               {DEMO_ACCOUNTS.map((a) => (
                 <button

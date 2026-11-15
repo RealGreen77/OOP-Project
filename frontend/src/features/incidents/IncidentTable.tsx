@@ -1,9 +1,9 @@
 import clsx from 'clsx';
 import { Copy, Flame } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { PriorityBadge, SlaBadge, StatusBadge } from '../../components/badges';
 import { EmptyState, Table } from '../../components/ui';
-import { fmtAgo, fmtCountdown } from '../../lib/format';
+import { fmtAgo, slaCountdown } from '../../lib/format';
 import type { IncidentSummary } from '../../types';
 
 export function IncidentTable({ incidents, showReporter = true, emptyText = 'No incidents found' }: {
@@ -27,7 +27,7 @@ export function IncidentTable({ incidents, showReporter = true, emptyText = 'No 
       </thead>
       <tbody>
         {incidents.map((i) => {
-          const countdown = fmtCountdown(i.resolutionDeadline);
+          const countdown = slaCountdown(i.slaStatus, i.resolutionDeadline);
           const active = !['RESOLVED', 'VERIFIED', 'CLOSED'].includes(i.status);
           return (
             <tr
@@ -45,7 +45,7 @@ export function IncidentTable({ incidents, showReporter = true, emptyText = 'No 
                   )}
                   {i.suspectedDuplicate && <span title="Possible duplicate"><Copy className="size-3.5 text-amber-500" /></span>}
                 </div>
-                <div className="truncate font-medium">{i.title}</div>
+                <Link to={`/incidents/${i.id}`} onClick={(e) => e.stopPropagation()} className="block truncate font-medium hover:underline rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600">{i.title}</Link>
                 {i.category && <div className="text-xs text-muted">{i.category.name}</div>}
               </td>
               <td><PriorityBadge priority={i.priority} /></td>

@@ -33,7 +33,8 @@ public class SlaRiskPredictor {
 
         List<String> factors = new ArrayList<>();
         Instant deadline = sla.getResolutionDeadline();
-        if (sla.isResolutionBreached() || now.isAfter(deadline)) {
+        // A paused clock is never overdue: the deadline moves back when the reporter answers.
+        if (sla.isResolutionBreached() || (!sla.isPaused() && now.isAfter(deadline))) {
             factors.add("Resolution deadline already passed");
             return new SlaRiskAssessment(1.0, SlaRiskAssessment.RiskLevel.BREACHED, now, deadline, factors);
         }

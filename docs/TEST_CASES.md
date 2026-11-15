@@ -1,8 +1,8 @@
 # I-ITSM — Test Cases
 
 **Automated suite.**
-- Backend: **58 tests** with ~79% instruction coverage (JaCoCo). Run with `cd backend && ./mvnw verify`.
-- Frontend: **7 tests** (Vitest + Testing Library). Run with `cd frontend && npm test`.
+- Backend: **59 tests** with ~79% instruction coverage (JaCoCo). Run with `cd backend && ./mvnw verify`.
+- Frontend: **8 tests** (Vitest + Testing Library). Run with `cd frontend && npm test`.
 
 Every case below is automated. The *Test* column names the JUnit method that implements it.
 Integration tests boot the whole application (Flyway schema + seeded data) and call the REST
@@ -60,7 +60,7 @@ API through MockMvc.
   - Smart strategy prefers senior engineers for P1.
   - Keyword categorisation.
   - Correlation finds the root service.
-  - SLA risk LOW vs HIGH.
+  - SLA risk LOW vs HIGH; a paused clock is never predicted as breached.
   - Dependency cycle rejected.
   - Text analyser synonyms.
 - **API**
@@ -72,6 +72,7 @@ API through MockMvc.
   - Formatting helpers.
   - Query-string builder.
   - Badges show text labels, not colour alone.
+  - SLA countdown: a paused clock never shows "overdue"; a response-only breach is labelled as such.
 
 ## Exception coverage matrix (brief → implementation)
 

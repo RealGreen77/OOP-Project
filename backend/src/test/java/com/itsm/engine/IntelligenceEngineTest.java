@@ -108,6 +108,16 @@ class IntelligenceEngineTest {
     }
 
     @Test
+    @DisplayName("SLA risk: a paused clock past its original deadline is not reported as breached")
+    void pausedClockIsNotBreached() {
+        Incident i = TestData.classifiedIncident(network, email, Priority.P2, TestData.policy(Priority.P2, 15, 120));
+        i.getSla().pause(T0.plus(Duration.ofMinutes(60)));
+        SlaRiskAssessment risk = new SlaRiskPredictor().assess(i, T0.plus(Duration.ofMinutes(180)), 0, Duration.ofMinutes(30));
+        assertThat(risk.level()).isNotEqualTo(SlaRiskAssessment.RiskLevel.BREACHED);
+        assertThat(risk.factors()).anyMatch(f -> f.contains("paused"));
+    }
+
+    @Test
     @DisplayName("Service dependency graph rejects cycles")
     void dependencyCycle() {
         assertThatThrownBy(() -> coreDb.addDependency(payment)).isInstanceOf(InvalidInputException.class)

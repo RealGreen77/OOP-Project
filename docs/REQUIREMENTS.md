@@ -100,7 +100,7 @@ VPN, ERP, storage and others. When one fails, incidents are reported through ad-
 | NFR-06 | Usability | Role-specific navigation; only legal actions are shown; live updates; clear error messages; dark mode; responsive layout |
 | NFR-07 | Observability | Health and metrics endpoints, structured logs, notification delivery log, audit log |
 | NFR-08 | Portability | Docker Compose deployment; configuration through environment variables |
-| NFR-09 | Testability | Time injected via `Clock`; pure algorithm classes; ≥ 15 documented test cases (58 automated) |
+| NFR-09 | Testability | Time injected via `Clock`; pure algorithm classes; ≥ 15 documented test cases (67 automated: 59 backend + 8 frontend) |
 | NFR-10 | Accessibility | Status is never shown by colour alone (labels and icons); charts have table views; keyboard-reachable controls |
 
 ## 5. Business rules

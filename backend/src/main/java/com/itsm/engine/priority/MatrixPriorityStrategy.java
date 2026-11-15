@@ -30,12 +30,12 @@ public class MatrixPriorityStrategy implements PriorityStrategy {
 
     @Override
     public String displayName() {
-        return "Impact x Urgency x Criticality matrix";
+        return "Impact × Urgency × Criticality matrix";
     }
 
     @Override
     public String description() {
-        return "Score = Impact x Urgency x Business Criticality (1-64). P1>=32, P2>=16, P3>=6, else P4.";
+        return "Score = Impact × Urgency × Business Criticality (1–64). P1 ≥ 32, P2 ≥ 16, P3 ≥ 6, else P4.";
     }
 
     @Override
@@ -45,7 +45,7 @@ public class MatrixPriorityStrategy implements PriorityStrategy {
                 : score >= P2_THRESHOLD ? Priority.P2
                 : score >= P3_THRESHOLD ? Priority.P3
                 : Priority.P4;
-        String rationale = String.format("Matrix: impact %s(%d) x urgency %s(%d) x criticality %s(%d) = %d -> %s",
+        String rationale = String.format("Matrix: impact %s(%d) × urgency %s(%d) × criticality %s(%d) = %d → %s",
                 ctx.impact(), ctx.impact().level(), ctx.urgency(), ctx.urgency().level(),
                 ctx.criticality(), ctx.criticality().level(), score, priority.display());
         return new PriorityAssessment(priority, score, rationale, KEY);

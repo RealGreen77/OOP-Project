@@ -16,7 +16,7 @@ export function OperationsDashboard({ title = 'Operations dashboard' }: { title?
   return (
     <>
       <PageHeader title={title} subtitle="Live view of incident volume, SLA health and team workload. Updates automatically." />
-      <div className="grid grid-cols-2 gap-4 md:grid-cols-4 xl:grid-cols-8">
+      <div className="grid grid-cols-2 gap-4 md:grid-cols-4 2xl:grid-cols-8">
         <StatCard label="Total" value={o.totalIncidents} icon={<Inbox className="size-4" />} />
         <StatCard label="Open" value={o.openIncidents} />
         <StatCard label="Critical open" value={o.criticalOpen} tone={o.criticalOpen ? 'danger' : 'default'} icon={<AlertOctagon className="size-4" />} />

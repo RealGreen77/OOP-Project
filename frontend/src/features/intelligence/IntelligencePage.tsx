@@ -47,7 +47,7 @@ export function IntelligencePage() {
             <thead><tr><th>Incident</th><th>Priority</th><th>Status</th><th>Assignee</th><th>Risk</th><th>Deadline</th><th>Predicted finish</th><th>Why</th></tr></thead>
             <tbody>
               {risks.data.map((r) => {
-                const due = fmtCountdown(r.deadline);
+                const due = r.status === 'PENDING_INFO' ? { label: 'clock stopped', overdue: false } : fmtCountdown(r.deadline);
                 return (
                   <tr key={r.incidentId}>
                     <td className="max-w-xs"><Link to={`/incidents/${r.incidentId}`} className="font-mono text-xs text-brand-600 hover:underline">{r.number}</Link><div className="truncate font-medium">{r.title}</div></td>

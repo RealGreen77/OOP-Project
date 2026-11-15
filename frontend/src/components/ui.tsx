@@ -82,9 +82,9 @@ export function StatCard({ label, value, hint, tone = 'default', icon }: {
   }[tone];
   return (
     <div className="surface rounded-xl border border-base p-4 shadow-sm">
-      <div className="flex items-center justify-between text-xs font-medium uppercase tracking-wide text-muted">
-        {label}
-        {icon && <span className="text-muted">{icon}</span>}
+      <div className="flex items-start justify-between gap-2 text-xs font-medium uppercase tracking-wide text-muted">
+        <span className="min-w-0 truncate" title={label}>{label}</span>
+        {icon && <span className="shrink-0 text-muted">{icon}</span>}
       </div>
       <div className={clsx('mt-2 text-2xl font-semibold tabular-nums', toneClass)}>{value}</div>
       {hint && <div className="mt-1 text-xs text-muted">{hint}</div>}
