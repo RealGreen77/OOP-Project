@@ -1,0 +1,14 @@
+# "local" profile: run the real application against a file-based H2 database (no Docker/PostgreSQL needed).
+# Start with:  ./mvnw spring-boot:test-run      (data persists in ./data/itsm-local.mv.db)
+spring:
+  datasource:
+    url: jdbc:h2:file:./data/itsm-local;MODE=PostgreSQL;DATABASE_TO_LOWER=TRUE;DEFAULT_NULL_ORDERING=HIGH;AUTO_SERVER=TRUE
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+
+itsm:
+  sla:
+    monitor-interval-ms: 30000
+  notifications:
+    email-mode: log

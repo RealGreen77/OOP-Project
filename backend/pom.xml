@@ -118,6 +118,10 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <!-- used by "spring-boot:test-run" (H2 local mode, see LocalDevApplication) -->
+                    <testMainClass>com.itsm.LocalDevApplication</testMainClass>
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.jacoco</groupId>

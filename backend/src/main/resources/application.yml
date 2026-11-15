@@ -46,6 +46,9 @@ server:
     enabled: true
 
 management:
+  health:
+    mail:
+      enabled: false        # e-mail is best-effort (failures are logged per delivery), not a liveness concern
   endpoints:
     web:
       exposure:

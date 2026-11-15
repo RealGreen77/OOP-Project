@@ -18,7 +18,7 @@ import java.util.Set;
  * dependency graph. Example: incidents on "Payment Gateway" and "HR Portal" while "Core Database"
  * (which both depend on) also has an incident -> one cluster rooted at Core Database.
  *
- * Algorithm: every incident "votes" for its own service and all its transitive dependencies. Services are
+ * Algorithm: every incident "votes" for its own service and its direct dependencies. Services are
  * then taken greedily by (votes desc, direct incidents desc, dependency depth desc); each incident joins
  * at most one cluster. Clusters of size >= 2 are reported; size >= {@code majorThreshold} is a major incident.
  *
@@ -40,7 +40,9 @@ public class IncidentCorrelator {
             services.put(svc.getId(), svc);
             direct.computeIfAbsent(svc.getId(), k -> new ArrayList<>()).add(incident);
             votes.computeIfAbsent(svc.getId(), k -> new ArrayList<>()).add(incident);
-            for (ITService dep : svc.transitiveDependencies()) {
+            // Direct dependencies only: following the graph transitively would pull almost every incident
+            // under shared infrastructure (e.g. everything -> SSO -> database) and destroy the signal.
+            for (ITService dep : svc.getDependencies()) {
                 services.put(dep.getId(), dep);
                 votes.computeIfAbsent(dep.getId(), k -> new ArrayList<>()).add(incident);
             }
@@ -79,7 +81,7 @@ public class IncidentCorrelator {
     private static int dependentsCount(ITService service, Map<Long, ITService> known) {
         int count = 0;
         for (ITService s : known.values()) {
-            if (s != service && s.dependsOn(service)) count++;
+            if (s != service && s.getDependencies().contains(service)) count++;
         }
         return count;
     }
