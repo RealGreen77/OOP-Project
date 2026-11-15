@@ -165,8 +165,9 @@ public class SlaRecord {
         if (resolvedAt != null) {
             return isResolutionBreached() || resolvedAt.isAfter(resolutionDeadline) ? SlaStatus.BREACHED : SlaStatus.MET;
         }
-        if (isResolutionBreached() || isResponseBreached() || now.isAfter(resolutionDeadline)) return SlaStatus.BREACHED;
-        if (isPaused()) return SlaStatus.PAUSED;
+        if (isResolutionBreached() || isResponseBreached()) return SlaStatus.BREACHED;
+        if (isPaused()) return SlaStatus.PAUSED; // deadline moves on resume, so a paused clock is never overdue
+        if (now.isAfter(resolutionDeadline)) return SlaStatus.BREACHED;
         if (elapsedFraction(now) >= getWarningThresholdPercent() / 100.0) return SlaStatus.AT_RISK;
         return SlaStatus.ON_TRACK;
     }

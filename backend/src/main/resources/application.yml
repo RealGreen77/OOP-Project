@@ -89,3 +89,5 @@ logging:
   level:
     com.itsm: INFO
     org.hibernate.SQL: WARN
+    # benign warning when a lazy User proxy is narrowed to its TeamLead subclass
+    org.hibernate.engine.internal.StatefulPersistenceContext: ERROR

@@ -59,7 +59,7 @@ public final class IncidentSpecifications {
         Predicate paused = cb.isNotNull(sla.get("pausedAt"));
         Predicate overdue = cb.lessThan(sla.<Instant>get("resolutionDeadline"), now);
         return switch (status) {
-            case BREACHED -> cb.and(hasSla, cb.or(breachedFlag, cb.and(cb.not(resolved), overdue)));
+            case BREACHED -> cb.and(hasSla, cb.or(breachedFlag, cb.and(cb.not(resolved), cb.not(paused), overdue)));
             case MET -> cb.and(hasSla, resolved, cb.not(breachedFlag));
             case PAUSED -> cb.and(hasSla, paused, cb.not(resolved));
             case AT_RISK -> cb.and(hasSla, cb.not(resolved), cb.not(breachedFlag), cb.not(overdue),
