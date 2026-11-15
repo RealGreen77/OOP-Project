@@ -17,7 +17,7 @@ so you can find it with grep.
 | **Frontend** | React 19 · TypeScript · Vite · TanStack Query · Tailwind CSS 4 · Recharts |
 | **Data** | PostgreSQL 17 (H2 in PostgreSQL mode for tests / local demo) |
 | **Ops** | Docker Compose · nginx · Mailpit (SMTP catcher) · GitHub Actions CI · OpenAPI/Swagger · Actuator |
-| **Quality** | 59 backend tests (unit + API integration, ~79% instruction coverage) · 8 frontend tests |
+| **Quality** | 62 backend tests (unit + API integration, ~79% instruction coverage) · 8 frontend tests |
 
 ---
 
@@ -172,7 +172,7 @@ docker-compose.yml           PostgreSQL + Mailpit + backend + frontend
 ## Running the tests
 
 ```bash
-cd backend && ./mvnw verify      # 59 tests + JaCoCo report at target/site/jacoco/index.html
+cd backend && ./mvnw verify      # 62 tests + JaCoCo report at target/site/jacoco/index.html
 cd frontend && npm test          # Vitest
 ```
 
@@ -189,3 +189,5 @@ By default every e-mail goes to the Mailpit catcher at http://localhost:8025. To
 copy `.env.example` to `.env`, uncomment the `SMTP_*` / `MAIL_FROM` lines and fill in a provider
 (for Gmail use an **app password**, not your normal password), then run `docker compose up -d`.
 Users receive e-mail at the address on their account, so register with a real address to test.
+Set `SIMULATED_EMAIL_DOMAINS=itsm.local` (already in `.env.example`) so the seeded demo accounts are not e-mailed
+(their delivery shows as SIMULATED in the delivery log) and only real addresses receive mail.

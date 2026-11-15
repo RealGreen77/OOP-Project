@@ -88,6 +88,8 @@ itsm:
     email-mode: ${EMAIL_MODE:log}          # "smtp" (Mailpit / real SMTP) or "log" (simulated)
     from-address: ${MAIL_FROM:servicedesk@itsm.local}
     sms-enabled: true
+    # Recipients on these domains (e.g. the seeded demo accounts) are not e-mailed; delivery is logged as SIMULATED.
+    simulated-email-domains: ${SIMULATED_EMAIL_DOMAINS:}
     frontend-base-url: ${FRONTEND_URL:http://localhost:5173}
   cors-allowed-origins: ${CORS_ORIGINS:http://localhost:5173,http://localhost:3000,http://localhost}
   seed-demo-data: ${SEED_DEMO_DATA:true}

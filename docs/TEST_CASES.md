@@ -1,7 +1,7 @@
 # I-ITSM — Test Cases
 
 **Automated suite.**
-- Backend: **59 tests** with ~79% instruction coverage (JaCoCo). Run with `cd backend && ./mvnw verify`.
+- Backend: **62 tests** with ~79% instruction coverage (JaCoCo). Run with `cd backend && ./mvnw verify`.
 - Frontend: **8 tests** (Vitest + Testing Library). Run with `cd frontend && npm test`.
 
 Every case below is automated. The *Test* column names the JUnit method that implements it.
@@ -73,6 +73,8 @@ API through MockMvc.
   - Query-string builder.
   - Badges show text labels, not colour alone.
   - SLA countdown: a paused clock never shows "overdue"; a response-only breach is labelled as such.
+- **Notifications**
+  - SMTP adapter: demo-domain recipients are simulated, real ones sent, provider errors translated.
 
 ## Exception coverage matrix (brief → implementation)
 

@@ -38,6 +38,7 @@ public record ItsmProperties(
     }
 
     public record Notifications(@NotBlank String emailMode, @NotBlank String fromAddress, boolean smsEnabled,
+                                List<String> simulatedEmailDomains,
                                 @NotBlank String frontendBaseUrl) {
     }
 }
