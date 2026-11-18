@@ -1,5 +1,5 @@
 import { ShieldCheck } from 'lucide-react';
-import { type FormEvent, useState } from 'react';
+import { type FormEvent, useRef, useState } from 'react';
 import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { errorMessage } from '../api/client';
 import { useAuth } from '../auth/AuthContext';
@@ -20,6 +20,7 @@ export function LoginPage() {
   const location = useLocation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const emailRef = useRef<HTMLInputElement>(null);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
@@ -68,12 +69,20 @@ export function LoginPage() {
           <form onSubmit={submit} className="space-y-4">
             {error && <ErrorBox message={error} />}
             <Field label="Email">
-              <Input type="email" autoComplete="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
+              <Input ref={emailRef} type="email" autoComplete="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
             </Field>
             <Field label="Password">
               <PasswordInput autoComplete="current-password" required value={password} onChange={(e) => setPassword(e.target.value)} />
             </Field>
-            <div className="-mt-2 text-right text-sm"><Link to="/forgot-password" state={{ email: email.trim() }} className="font-medium text-brand-600 hover:underline">Forgot password?</Link></div>
+            <div className="-mt-2 text-right text-sm"><Link
+              to="/forgot-password"
+              className="font-medium text-brand-600 hover:underline"
+              onClick={(e) => {
+                // Read the field itself: browser autofill can fill it without updating React state.
+                e.preventDefault();
+                navigate('/forgot-password', { state: { email: (emailRef.current?.value ?? email).trim() } });
+              }}
+            >Forgot password?</Link></div>
             <Button type="submit" className="w-full" loading={busy}>Sign in</Button>
           </form>
           <p className="text-center text-sm text-muted">
