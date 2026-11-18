@@ -73,7 +73,7 @@ export function LoginPage() {
             <Field label="Password">
               <PasswordInput autoComplete="current-password" required value={password} onChange={(e) => setPassword(e.target.value)} />
             </Field>
-            <div className="-mt-2 text-right text-sm"><Link to="/forgot-password" className="font-medium text-brand-600 hover:underline">Forgot password?</Link></div>
+            <div className="-mt-2 text-right text-sm"><Link to="/forgot-password" state={{ email: email.trim() }} className="font-medium text-brand-600 hover:underline">Forgot password?</Link></div>
             <Button type="submit" className="w-full" loading={busy}>Sign in</Button>
           </form>
           <p className="text-center text-sm text-muted">

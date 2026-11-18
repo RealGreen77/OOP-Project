@@ -1,6 +1,6 @@
 import { MailCheck } from 'lucide-react';
 import { type FormEvent, type ReactNode, useState } from 'react';
-import { Link, useNavigate, useSearchParams } from 'react-router-dom';
+import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { toast } from 'sonner';
 import { errorMessage, problemOf } from '../api/client';
 import { api } from '../api/endpoints';
@@ -23,7 +23,9 @@ function AuthCard({ title, subtitle, children }: { title: string; subtitle: stri
 
 /** Step 1: ask for the account e-mail. The answer is the same whether or not the account exists. */
 export function ForgotPasswordPage() {
-  const [email, setEmail] = useState('');
+  // Pre-filled with whatever was typed on the sign-in page (passed in router state, not the URL).
+  const typedOnLogin = (useLocation().state as { email?: string } | null)?.email ?? '';
+  const [email, setEmail] = useState(typedOnLogin);
   const [sent, setSent] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
