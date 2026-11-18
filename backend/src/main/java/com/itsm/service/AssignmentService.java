@@ -6,6 +6,7 @@ import com.itsm.domain.user.Technician;
 import com.itsm.engine.assignment.AssignmentStrategy;
 import com.itsm.engine.assignment.TechnicianCandidate;
 import com.itsm.engine.assignment.TechnicianRecommendation;
+import com.itsm.exception.BusinessRuleViolationException;
 import com.itsm.exception.TechnicianUnavailableException;
 import com.itsm.exception.UserNotFoundException;
 import com.itsm.exception.WorkloadExceededException;
@@ -58,6 +59,11 @@ public class AssignmentService {
         if (!tech.getAvailability().canTakeWork()) {
             throw new TechnicianUnavailableException("Technician " + tech.getUserCode() + " is " + tech.getAvailability());
         }
+        if (incident.isReportedBy(tech)) {
+            throw new BusinessRuleViolationException("SELF_ASSIGNMENT_NOT_ALLOWED",
+                    incident.getNumber() + " was reported by " + tech.getFullName()
+                            + ". An incident cannot be assigned to the person who reported it.");
+        }
         if (incident.isAssignedTo(tech)) {
             throw new TechnicianUnavailableException(incident.getNumber() + " is already assigned to " + tech.getUserCode());
         }
@@ -84,6 +90,7 @@ public class AssignmentService {
         }
         return technicianRepository.findAllActiveWithSkills().stream()
                 .filter(t -> !incident.isAssignedTo(t))
+                .filter(t -> !incident.isReportedBy(t)) // BR-19: nobody works an incident they reported
                 .map(t -> new TechnicianCandidate(t, workload.getOrDefault(t.getId(), 0), serviceHistory.getOrDefault(t.getId(), 0L)))
                 .toList();
     }

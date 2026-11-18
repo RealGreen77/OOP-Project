@@ -17,7 +17,7 @@ so you can find it with grep.
 | **Frontend** | React 19 · TypeScript · Vite · TanStack Query · Tailwind CSS 4 · Recharts |
 | **Data** | PostgreSQL 17 (H2 in PostgreSQL mode for tests / local demo) |
 | **Ops** | Docker Compose · nginx · Mailpit (SMTP catcher) · GitHub Actions CI · OpenAPI/Swagger · Actuator |
-| **Quality** | 70 backend tests (unit + API integration, ~79% instruction coverage) · 9 frontend tests |
+| **Quality** | 71 backend tests (unit + API integration, ~79% instruction coverage) · 9 frontend tests |
 
 ---
 
@@ -182,7 +182,7 @@ docker-compose.yml           PostgreSQL + Mailpit + backend + frontend
 ## Running the tests
 
 ```bash
-cd backend && ./mvnw verify      # 70 tests + JaCoCo report at target/site/jacoco/index.html
+cd backend && ./mvnw verify      # 71 tests + JaCoCo report at target/site/jacoco/index.html
 cd frontend && npm test          # Vitest
 ```
 

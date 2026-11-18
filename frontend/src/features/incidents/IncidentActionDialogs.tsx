@@ -121,13 +121,14 @@ function AssignDialog({ incident, busy, preselect, onClose, onSubmit }: {
       <div className="max-h-80 space-y-1.5 overflow-y-auto">
         {technicians.data?.map((t) => {
           const full = t.activeIncidents >= t.maxConcurrentIncidents || !['AVAILABLE', 'BUSY'].includes(t.availability);
+          const isReporter = incident.reporter.id === t.technician.id; // BR-19: never assign your own report
           return (
             <label key={t.technician.id} className={clsx('flex cursor-pointer items-center gap-3 rounded-lg border border-base p-2.5 text-sm',
-              String(t.technician.id) === technicianId && 'border-brand-500 bg-brand-50 dark:bg-brand-900/30', full && 'opacity-60')}>
+              String(t.technician.id) === technicianId && 'border-brand-500 bg-brand-50 dark:bg-brand-900/30', (full || isReporter) && 'opacity-60', isReporter && 'cursor-not-allowed')}>
               <input type="radio" name="tech" className="accent-brand-600" checked={String(t.technician.id) === technicianId}
-                onChange={() => setTechnicianId(String(t.technician.id))} disabled={incident.assignedTo?.id === t.technician.id} />
+                onChange={() => setTechnicianId(String(t.technician.id))} disabled={incident.assignedTo?.id === t.technician.id || isReporter} />
               <div className="flex-1">
-                <div className="font-medium">{t.technician.fullName} <span className="text-xs text-muted">{t.technician.userCode} · {t.experienceYears}y</span></div>
+                <div className="font-medium">{t.technician.fullName} <span className="text-xs text-muted">{t.technician.userCode} · {t.experienceYears}y</span>{isReporter && <span className="ml-2 text-xs font-normal text-amber-700 dark:text-amber-400">Reported this incident</span>}</div>
                 <div className="text-xs text-muted">{t.skills.join(', ') || 'No skills listed'}</div>
               </div>
               <div className="text-right text-xs">

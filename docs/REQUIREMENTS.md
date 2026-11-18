@@ -101,7 +101,7 @@ VPN, ERP, storage and others. When one fails, incidents are reported through ad-
 | NFR-06 | Usability | Role-specific navigation; only legal actions are shown; live updates; clear error messages; dark mode; responsive layout |
 | NFR-07 | Observability | Health and metrics endpoints, structured logs, notification delivery log, audit log |
 | NFR-08 | Portability | Docker Compose deployment; configuration through environment variables |
-| NFR-09 | Testability | Time injected via `Clock`; pure algorithm classes; ≥ 15 documented test cases (79 automated: 70 backend + 9 frontend) |
+| NFR-09 | Testability | Time injected via `Clock`; pure algorithm classes; ≥ 15 documented test cases (80 automated: 71 backend + 9 frontend) |
 | NFR-10 | Accessibility | Status is never shown by colour alone (labels and icons); charts have table views; keyboard-reachable controls |
 
 ## 5. Business rules
@@ -126,3 +126,4 @@ VPN, ERP, storage and others. When one fails, incidents are reported through ad-
 | BR-16 | A technician with active incidents cannot be deactivated until the incidents are reassigned |
 | BR-17 | Self-registration requires the 6-digit code e-mailed to the address: valid 10 minutes, 5 wrong attempts, re-sent at most every 30 seconds, single use |
 | BR-18 | A password-reset link is valid 30 minutes, works once, revokes earlier links and is sent at most once per minute; the request never reveals whether the account exists |
+| BR-19 | Nobody is assigned an incident they reported: the reporter is excluded from automatic assignment and recommendations, and a manual assignment to them is refused (`SELF_ASSIGNMENT_NOT_ALLOWED`) |

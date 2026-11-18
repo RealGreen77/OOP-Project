@@ -1,7 +1,7 @@
 # I-ITSM — Test Cases
 
 **Automated suite.**
-- Backend: **70 tests** with ~79% instruction coverage (JaCoCo). Run with `cd backend && ./mvnw verify`.
+- Backend: **71 tests** with ~79% instruction coverage (JaCoCo). Run with `cd backend && ./mvnw verify`.
 - Frontend: **9 tests** (Vitest + Testing Library). Run with `cd frontend && npm test`.
 
 Every case below is automated. The *Test* column names the JUnit method that implements it.
@@ -41,8 +41,9 @@ API through MockMvc.
 | TC-29 | Normal (forgot password) | Reset via e-mailed link | Forgot password, open link, set new password, log in; reuse the link | 202; 204; new password 200, old 401; reuse 422 `RESET_LINK_INVALID` | `PasswordResetApiTest.resetFlow` |
 | TC-30 | Exception (enumeration, bad token) | Unknown e-mail, forged token, weak password | Forgot for unknown address; random token; `short` password | 202 with no e-mail sent; 422 `RESET_LINK_INVALID`; 400 field error | `PasswordResetApiTest.noEnumerationAndInvalidToken` |
 | TC-31 | Business rule (lockout, reuse, rate limit) | Reset a locked account | Lock with 5 bad logins; request link twice; reset to the old password, then a new one | Only 1 e-mail; 422 `PASSWORD_REUSED`; 204 and login succeeds (lock cleared) | `PasswordResetApiTest.resetUnlocksAccount` |
+| TC-32 | Business rule (BR-19) | Technician reports their own incident | New idle technician skilled in every category reports an incident; check auto-assignee and recommendations; admin assigns it to the reporter | Created; assignee is someone else; reporter absent from recommendations; 422 `SELF_ASSIGNMENT_NOT_ALLOWED` | `SelfAssignmentApiTest.reporterIsNeverAssignee` |
 
-**Additional automated cases** (beyond the 31 documented above):
+**Additional automated cases** (beyond the 32 documented above):
 - **Domain**
   - Reopen counts and clears resolution.
   - PENDING_INFO pauses and extends the SLA.

@@ -60,7 +60,8 @@ export function IncidentDetailPage() {
   const worker = can('WORK_INCIDENT') && (isAssignee || is('TEAM_LEAD'));
   const staff = can('WORK_INCIDENT') || can('ASSIGN_INCIDENT');
   const canAssign = can('ASSIGN_INCIDENT');
-  const canSelfAssign = can('WORK_INCIDENT') && !incident.assignedTo && allowed.has('ASSIGN');
+  // Nobody may work an incident they reported (BR-19), so no "Take ownership" on your own report.
+  const canSelfAssign = can('WORK_INCIDENT') && !incident.assignedTo && allowed.has('ASSIGN') && incident.reporter.id !== user.id;
   const run = (name: string, body?: Record<string, unknown>) => action.mutate({ name, body });
 
   const buttons: React.ReactNode[] = [];
