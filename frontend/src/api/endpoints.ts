@@ -23,6 +23,10 @@ export const api = {
   auth: {
     login: (email: string, password: string) => data<AuthResponse>(http.post('/auth/login', { email, password })),
     register: (body: Record<string, unknown>) => data<AuthResponse>(http.post('/auth/register', body)),
+    requestCode: (email: string) =>
+      data<{ email: string; expiresInMinutes: number; resendAfterSeconds: number }>(http.post('/auth/register/request-code', { email })),
+    forgotPassword: (email: string) => data(http.post('/auth/password/forgot', { email })),
+    resetPassword: (token: string, newPassword: string) => data(http.post('/auth/password/reset', { token, newPassword })),
     me: () => data<User>(http.get('/auth/me')),
     updateProfile: (body: Record<string, unknown>) => data<User>(http.put('/auth/me', body)),
     changePassword: (body: { currentPassword: string; newPassword: string }) => data(http.post('/auth/me/password', body)),

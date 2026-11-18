@@ -44,7 +44,7 @@ VPN, ERP, storage and others. When one fails, incidents are reported through ad-
 
 **Assumptions**
 1. Users authenticate with organisation e-mail and password. SSO/OAuth integration is future work.
-2. Employees self-register. Support staff and administrators are created by administrators.
+2. Employees self-register after verifying their e-mail address. Support staff and administrators are created by administrators, who vouch for the address.
 3. SLA clocks run 24×7, not in business hours, and pause only while waiting for the reporter.
 4. E-mail is delivered over SMTP (Mailpit in the demo). SMS goes through a simulated vendor
    gateway, which the brief permits.
@@ -67,7 +67,7 @@ VPN, ERP, storage and others. When one fails, incidents are reported through ad-
 
 | ID | Requirement |
 |---|---|
-| FR-01 | Users register (employees) and log in; the system returns a JWT and role-specific permissions |
+| FR-01 | Users register (employees) after proving they own the e-mail address with a one-time code, and log in; the system returns a JWT and role-specific permissions |
 | FR-02 | An employee reports an incident with title, description, affected service, impact, urgency, users affected and an optional category |
 | FR-03 | The system creates the incident with a unique number (INC####) and status NEW |
 | FR-04 | The system classifies the incident automatically: reporter choice, else keyword suggestion, else the service default |
@@ -86,13 +86,14 @@ VPN, ERP, storage and others. When one fails, incidents are reported through ad-
 | FR-17 | The system predicts SLA breach risk for active incidents |
 | FR-18 | The system suggests resolutions from similar historical incidents |
 | FR-19 | Administrators manage users, technician skills and capacity, services and dependencies, categories and keywords, SLA policies, and active strategies at runtime |
-| FR-20 | Users manage their profile, notification preferences (e-mail, SMS) and password |
+| FR-20 | Users manage their profile, notification preferences (e-mail, SMS) and password (new passwords typed twice; every password field can be revealed while typing) |
+| FR-21 | Users who forget their password request an e-mailed single-use link and set a new password |
 
 ## 4. Non-functional requirements
 
 | ID | Category | Requirement |
 |---|---|---|
-| NFR-01 | Security | BCrypt hashing, JWT authentication, role, permission and ownership authorization, account lockout, input validation, no sensitive data in responses |
+| NFR-01 | Security | BCrypt hashing, JWT authentication, role, permission and ownership authorization, account lockout, e-mail verification at registration, secure password reset, input validation, no sensitive data in responses |
 | NFR-02 | Maintainability | Layered architecture; patterns isolate change (new strategy, notification channel, category or state = additive change) |
 | NFR-03 | Extensibility | New categories and services are data; new algorithms and channels are new beans; event listeners plug into the bus |
 | NFR-04 | Reliability | Transactions keep incident and audit consistent; optimistic locking; notification failures never break the workflow |
@@ -100,7 +101,7 @@ VPN, ERP, storage and others. When one fails, incidents are reported through ad-
 | NFR-06 | Usability | Role-specific navigation; only legal actions are shown; live updates; clear error messages; dark mode; responsive layout |
 | NFR-07 | Observability | Health and metrics endpoints, structured logs, notification delivery log, audit log |
 | NFR-08 | Portability | Docker Compose deployment; configuration through environment variables |
-| NFR-09 | Testability | Time injected via `Clock`; pure algorithm classes; ≥ 15 documented test cases (70 automated: 62 backend + 8 frontend) |
+| NFR-09 | Testability | Time injected via `Clock`; pure algorithm classes; ≥ 15 documented test cases (79 automated: 70 backend + 9 frontend) |
 | NFR-10 | Accessibility | Status is never shown by colour alone (labels and icons); charts have table views; keyboard-reachable controls |
 
 ## 5. Business rules
@@ -123,3 +124,5 @@ VPN, ERP, storage and others. When one fails, incidents are reported through ad-
 | BR-14 | Internal notes are never visible to reporters |
 | BR-15 | Audit entries are immutable and written in the same transaction as the change |
 | BR-16 | A technician with active incidents cannot be deactivated until the incidents are reassigned |
+| BR-17 | Self-registration requires the 6-digit code e-mailed to the address: valid 10 minutes, 5 wrong attempts, re-sent at most every 30 seconds, single use |
+| BR-18 | A password-reset link is valid 30 minutes, works once, revokes earlier links and is sent at most once per minute; the request never reveals whether the account exists |

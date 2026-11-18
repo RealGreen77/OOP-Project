@@ -1,8 +1,8 @@
 # I-ITSM — Test Cases
 
 **Automated suite.**
-- Backend: **62 tests** with ~79% instruction coverage (JaCoCo). Run with `cd backend && ./mvnw verify`.
-- Frontend: **8 tests** (Vitest + Testing Library). Run with `cd frontend && npm test`.
+- Backend: **70 tests** with ~79% instruction coverage (JaCoCo). Run with `cd backend && ./mvnw verify`.
+- Frontend: **9 tests** (Vitest + Testing Library). Run with `cd frontend && npm test`.
 
 Every case below is automated. The *Test* column names the JUnit method that implements it.
 Integration tests boot the whole application (Flyway schema + seeded data) and call the REST
@@ -35,8 +35,14 @@ API through MockMvc.
 | TC-23 | Business rule (SLA monitoring) | Background SLA scan | Run `/admin/sla/scan` on seeded overdue incidents | Breaches detected and escalations recorded; risk list available | `IncidentWorkflowApiTest.slaMonitoring` |
 | TC-24 | Normal (search) | Multi-criteria filter | status=CLOSED, priority P2/P3, service=EMAIL; invalid sort field | Every row matches all filters; invalid sort → 400 | `IncidentWorkflowApiTest.searchFilters` |
 | TC-25 | Business rule / authorization | Runtime strategy switch | Admin sets round-robin; unknown key; team lead attempts the change | 200 and active; 400; 403 | `IncidentWorkflowApiTest.switchStrategy` |
+| TC-26 | Normal (account security) | Registration with e-mail verification | Request code, register with the e-mailed code; then request again and re-register | 202, code e-mailed; 201 EMPLOYEE; both repeats 409 `USER_ALREADY_EXISTS` | `AuthApiTest.registration` |
+| TC-27 | Exception (unverified e-mail) | Register someone else's address | No code; then a guessed code with no code requested | 422 `VERIFICATION_REQUIRED`; 422 `CODE_INVALID` | `AuthApiTest.registrationRequiresCode` |
+| TC-28 | Boundary (attempt limit) | Brute-forcing the code | 5 wrong codes, then the right one; immediate resend | 5 × 422 `CODE_INVALID` (attempts left shown); 422 `CODE_ATTEMPTS_EXCEEDED`; 422 `CODE_RECENTLY_SENT`, no extra e-mail | `AuthApiTest.verificationAttemptsAndResend` |
+| TC-29 | Normal (forgot password) | Reset via e-mailed link | Forgot password, open link, set new password, log in; reuse the link | 202; 204; new password 200, old 401; reuse 422 `RESET_LINK_INVALID` | `PasswordResetApiTest.resetFlow` |
+| TC-30 | Exception (enumeration, bad token) | Unknown e-mail, forged token, weak password | Forgot for unknown address; random token; `short` password | 202 with no e-mail sent; 422 `RESET_LINK_INVALID`; 400 field error | `PasswordResetApiTest.noEnumerationAndInvalidToken` |
+| TC-31 | Business rule (lockout, reuse, rate limit) | Reset a locked account | Lock with 5 bad logins; request link twice; reset to the old password, then a new one | Only 1 e-mail; 422 `PASSWORD_REUSED`; 204 and login succeeds (lock cleared) | `PasswordResetApiTest.resetUnlocksAccount` |
 
-**Additional automated cases** (beyond the 25 documented above):
+**Additional automated cases** (beyond the 31 documented above):
 - **Domain**
   - Reopen counts and clears resolution.
   - PENDING_INFO pauses and extends the SLA.
@@ -64,7 +70,7 @@ API through MockMvc.
   - Dependency cycle rejected.
   - Text analyser synonyms.
 - **API**
-  - Registration and duplicate e-mail (409).
+  - Registration and duplicate e-mail (409), now through the e-mail verification flow.
   - Dashboard aggregates.
 - **Smoke**
   - Full context boots, the schema validates and demo data is seeded.
@@ -75,12 +81,16 @@ API through MockMvc.
   - SLA countdown: a paused clock never shows "overdue"; a response-only breach is labelled as such.
 - **Notifications**
   - SMTP adapter: demo-domain recipients are simulated, real ones sent, provider errors translated.
+- **Account security**
+  - Verification code expiry boundary, attempt budget reset on resend, 30-second resend cooldown.
+  - Password field show/hide toggle is a keyboard-accessible button that reveals and re-hides the value.
 
 ## Exception coverage matrix (brief → implementation)
 
 | Situation in brief | Exception / response | Covered by |
 |---|---|---|
 | Invalid login | `AuthenticationFailedException` → 401; `AccountLockedException` → 423 | TC-10, TC-12 |
+| Unverified e-mail / bad reset link | `BusinessRuleViolationException` (`VERIFICATION_REQUIRED`, `CODE_*`, `RESET_LINK_INVALID`) → 422 | TC-27, TC-28, TC-30 |
 | Unauthorized operation | `UnauthorizedOperationException` / `AccessDenied` → 403 | TC-14, TC-19, TC-25 |
 | Invalid incident | Domain validation `InvalidInputException` and Bean Validation → 400 | TC-13, TC-21, `detailValidation` |
 | Invalid state transition | `InvalidStateTransitionException` → 409 | TC-02, TC-03, TC-20 |

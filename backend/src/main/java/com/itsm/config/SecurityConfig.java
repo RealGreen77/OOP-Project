@@ -39,7 +39,8 @@ public class SecurityConfig {
             .headers(h -> h.frameOptions(f -> f.deny()))
             .exceptionHandling(e -> e.authenticationEntryPoint(problemHandler).accessDeniedHandler(problemHandler))
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers(HttpMethod.POST, "/api/auth/login", "/api/auth/register").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/auth/login", "/api/auth/register", "/api/auth/register/request-code",
+                        "/api/auth/password/forgot", "/api/auth/password/reset").permitAll()
                 .requestMatchers("/ws/**").permitAll() // STOMP CONNECT frames are authenticated by WebSocketConfig
                 .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
                 .requestMatchers("/actuator/health/**", "/actuator/info").permitAll()

@@ -76,6 +76,11 @@ itsm:
   security:
     max-failed-logins: 5
     lock-minutes: 15
+    email-verification-required: ${EMAIL_VERIFICATION_REQUIRED:true}
+    verification-code-minutes: 10
+    verification-max-attempts: 5
+    verification-resend-seconds: 30
+    password-reset-minutes: 30
   sla:
     monitor-interval-ms: ${SLA_MONITOR_INTERVAL_MS:60000}
     auto-escalation: true

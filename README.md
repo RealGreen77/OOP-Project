@@ -17,7 +17,7 @@ so you can find it with grep.
 | **Frontend** | React 19 · TypeScript · Vite · TanStack Query · Tailwind CSS 4 · Recharts |
 | **Data** | PostgreSQL 17 (H2 in PostgreSQL mode for tests / local demo) |
 | **Ops** | Docker Compose · nginx · Mailpit (SMTP catcher) · GitHub Actions CI · OpenAPI/Swagger · Actuator |
-| **Quality** | 62 backend tests (unit + API integration, ~79% instruction coverage) · 8 frontend tests |
+| **Quality** | 70 backend tests (unit + API integration, ~79% instruction coverage) · 9 frontend tests |
 
 ---
 
@@ -63,6 +63,16 @@ The login page has one-click buttons for each of these.
 More seeded users: technicians `sneha.patel`, `rahul.verma`, `kavya.nair`, `rohan.das`,
 `meera.joshi`; team lead `lead.infra`; employees `karan.singh`, `divya.menon`,
 `nikhil.kumar`, `isha.agarwal`. All of them are `@itsm.local`.
+
+### Accounts and passwords
+
+- **Register:** new employees enter their details (the password is typed twice), receive a 6-digit
+  code by e-mail and enter it to create the account. With Docker and no `.env`, the code arrives in
+  Mailpit (http://localhost:8025). For `@itsm.local` addresses it is printed in the backend log
+  (`docker compose logs backend | grep VERIFICATION`).
+- **Forgot password:** *Sign in → Forgot password?* e-mails a single-use link valid for 30 minutes.
+- **Show password:** every password field has an eye button.
+- Seeded demo accounts and accounts created by an administrator do not need e-mail verification.
 
 ---
 
@@ -117,7 +127,7 @@ More seeded users: technicians `sneha.patel`, `rahul.verma`, `kavya.nair`, `roha
 | ≥ 5 search criteria | **8+**: text/number, date range, status, priority, category, service, technician, SLA status (+ escalated, unassigned) and CSV export |
 | ≥ 2 intelligent features | **All 7 (A–G)**: duplicate detection, correlation, automatic escalation, smart recommendation, SLA risk prediction, auto-categorisation, suggested resolution |
 | Persistence | PostgreSQL + Flyway migrations, Hibernate `validate` |
-| Security | BCrypt, JWT, role and permission authorization, object-level access policy, lockout after 5 failed logins, input validation, RFC 7807 errors |
+| Security | BCrypt, JWT, role and permission authorization, object-level access policy, lockout after 5 failed logins, e-mail verification (one-time code) at registration, forgot-password via single-use e-mailed link, password confirmation and show/hide toggle, input validation, RFC 7807 errors |
 | Innovation | Real-time notifications and live dashboard, analytics charts, predictive SLA, similarity detection, service dependency graph, automated escalation, Docker, CI |
 
 ## Where to find each OOP concept
@@ -172,7 +182,7 @@ docker-compose.yml           PostgreSQL + Mailpit + backend + frontend
 ## Running the tests
 
 ```bash
-cd backend && ./mvnw verify      # 62 tests + JaCoCo report at target/site/jacoco/index.html
+cd backend && ./mvnw verify      # 70 tests + JaCoCo report at target/site/jacoco/index.html
 cd frontend && npm test          # Vitest
 ```
 

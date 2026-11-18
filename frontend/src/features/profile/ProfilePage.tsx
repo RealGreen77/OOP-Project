@@ -5,7 +5,7 @@ import { errorMessage } from '../../api/client';
 import { api } from '../../api/endpoints';
 import { useAuth } from '../../auth/AuthContext';
 import { RoleBadge } from '../../components/badges';
-import { Button, Card, Checkbox, Field, Input, PageHeader } from '../../components/ui';
+import { Button, Card, Checkbox, Field, Input, PageHeader, PasswordInput } from '../../components/ui';
 import { humanize } from '../../lib/format';
 
 export function ProfilePage() {
@@ -14,15 +14,16 @@ export function ProfilePage() {
     fullName: user?.fullName ?? '', department: user?.department ?? '', phone: user?.phone ?? '',
     emailNotifications: user?.emailNotifications ?? true, smsNotifications: user?.smsNotifications ?? false,
   });
-  const [pw, setPw] = useState({ currentPassword: '', newPassword: '' });
+  const [pw, setPw] = useState({ currentPassword: '', newPassword: '', confirmPassword: '' });
+  const pwMismatch = pw.confirmPassword.length > 0 && pw.newPassword !== pw.confirmPassword;
   const save = useMutation({
     mutationFn: () => api.auth.updateProfile(form),
     onSuccess: async () => { await refresh(); toast.success('Profile saved'); },
     onError: (e) => toast.error(errorMessage(e)),
   });
   const changePw = useMutation({
-    mutationFn: () => api.auth.changePassword(pw),
-    onSuccess: () => { setPw({ currentPassword: '', newPassword: '' }); toast.success('Password changed'); },
+    mutationFn: () => api.auth.changePassword({ currentPassword: pw.currentPassword, newPassword: pw.newPassword }),
+    onSuccess: () => { setPw({ currentPassword: '', newPassword: '', confirmPassword: '' }); toast.success('Password changed'); },
     onError: (e) => toast.error(errorMessage(e)),
   });
   if (!user) return null;
@@ -50,9 +51,10 @@ export function ProfilePage() {
         <div className="space-y-6">
           <Card title="Change password">
             <form className="space-y-4" onSubmit={(e: FormEvent) => { e.preventDefault(); changePw.mutate(); }}>
-              <Field label="Current password"><Input type="password" value={pw.currentPassword} onChange={(e) => setPw({ ...pw, currentPassword: e.target.value })} /></Field>
-              <Field label="New password" hint="8+ characters, a letter and a digit"><Input type="password" value={pw.newPassword} onChange={(e) => setPw({ ...pw, newPassword: e.target.value })} /></Field>
-              <Button type="submit" variant="secondary" loading={changePw.isPending} disabled={!pw.currentPassword || !pw.newPassword}>Change password</Button>
+              <Field label="Current password"><PasswordInput autoComplete="current-password" value={pw.currentPassword} onChange={(e) => setPw({ ...pw, currentPassword: e.target.value })} /></Field>
+              <Field label="New password" hint="8+ characters, a letter and a digit"><PasswordInput autoComplete="new-password" value={pw.newPassword} onChange={(e) => setPw({ ...pw, newPassword: e.target.value })} /></Field>
+              <Field label="Confirm new password" error={pwMismatch ? 'Passwords do not match' : undefined}><PasswordInput autoComplete="new-password" value={pw.confirmPassword} onChange={(e) => setPw({ ...pw, confirmPassword: e.target.value })} /></Field>
+              <Button type="submit" variant="secondary" loading={changePw.isPending} disabled={!pw.currentPassword || !pw.newPassword || pw.newPassword !== pw.confirmPassword}>Change password</Button>
             </form>
           </Card>
           {user.technician && (

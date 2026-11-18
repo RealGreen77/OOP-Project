@@ -115,6 +115,12 @@ public abstract class User extends BaseEntity {
         lastLoginAt = now;
     }
 
+    /** Lifts a login lock (e.g. after the owner proves control of the e-mail address by resetting the password). */
+    public void clearLockout() {
+        failedLoginAttempts = 0;
+        lockedUntil = null;
+    }
+
     public void changePasswordHash(String newHash) {
         this.passwordHash = requireText(newHash, "passwordHash");
     }

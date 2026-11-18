@@ -8,6 +8,12 @@ import com.itsm.web.dto.UserDtos.LoginRequest;
 import com.itsm.web.dto.UserDtos.RegisterRequest;
 import com.itsm.web.dto.UserDtos.UpdateProfileRequest;
 import com.itsm.web.dto.UserDtos.UserDetail;
+import com.itsm.web.dto.UserDtos.VerificationCodeRequest;
+import com.itsm.web.dto.UserDtos.ForgotPasswordRequest;
+import com.itsm.web.dto.UserDtos.ResetPasswordRequest;
+import com.itsm.service.EmailVerificationService;
+import com.itsm.service.EmailVerificationService.CodeSent;
+import com.itsm.service.PasswordResetService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -26,9 +32,35 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthController {
 
     private final AuthService authService;
+    private final EmailVerificationService emailVerification;
+    private final PasswordResetService passwordReset;
 
-    public AuthController(AuthService authService) {
+    public AuthController(AuthService authService, EmailVerificationService emailVerification,
+                          PasswordResetService passwordReset) {
         this.authService = authService;
+        this.emailVerification = emailVerification;
+        this.passwordReset = passwordReset;
+    }
+
+    @PostMapping("/register/request-code")
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    @Operation(summary = "E-mail a one-time 6-digit code that must be supplied to /register")
+    public CodeSent requestVerificationCode(@Valid @RequestBody VerificationCodeRequest request) {
+        return emailVerification.sendCode(request.email());
+    }
+
+    @PostMapping("/password/forgot")
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    @Operation(summary = "E-mail a password-reset link (same response whether or not the account exists)")
+    public void forgotPassword(@Valid @RequestBody ForgotPasswordRequest request) {
+        passwordReset.requestReset(request.email());
+    }
+
+    @PostMapping("/password/reset")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @Operation(summary = "Set a new password using the token from the reset e-mail")
+    public void resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
+        passwordReset.resetPassword(request.token(), request.newPassword());
     }
 
     @PostMapping("/register")

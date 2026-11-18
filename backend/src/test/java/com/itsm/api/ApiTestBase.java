@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
@@ -21,6 +22,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
+@Import(TestMailbox.Config.class)
 public abstract class ApiTestBase {
 
     protected static final String PASSWORD = "Password@123";
@@ -41,6 +43,7 @@ public abstract class ApiTestBase {
 
     @Autowired protected MockMvc mvc;
     @Autowired protected ObjectMapper json;
+    @Autowired protected TestMailbox mailbox;
 
     protected String token(String email) throws Exception {
         String cached = TOKENS.get(email);

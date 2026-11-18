@@ -57,17 +57,66 @@ class AuthApiTest extends ApiTestBase {
     }
 
     @Test
-    @DisplayName("Registration creates an EMPLOYEE; duplicate e-mails are rejected")
+    @DisplayName("TC-26 Registration with e-mail verification: code e-mailed, account created as EMPLOYEE, duplicates rejected")
     void registration() throws Exception {
-        var body = Map.of("fullName", "Test Person", "email", "test.person@itsm.local", "password", "Secret123",
-                "department", "QA");
-        mvc.perform(post("/api/auth/register").contentType(MediaType.APPLICATION_JSON).content(json.writeValueAsString(body)))
-                .andExpect(status().isCreated())
+        String email = "test.person@example.org";
+        requestCode(email).andExpect(status().isAccepted())
+                .andExpect(jsonPath("$.expiresInMinutes").value(10));
+        String code = mailbox.latestCode(email);
+
+        Map<String, Object> body = new java.util.HashMap<>(Map.of("fullName", "Test Person", "email", email,
+                "password", "Secret123", "department", "QA", "verificationCode", code));
+        register(body).andExpect(status().isCreated())
                 .andExpect(jsonPath("$.user.role").value("EMPLOYEE"))
                 .andExpect(jsonPath("$.user.userCode").isNotEmpty());
-        mvc.perform(post("/api/auth/register").contentType(MediaType.APPLICATION_JSON).content(json.writeValueAsString(body)))
-                .andExpect(status().isConflict())
-                .andExpect(jsonPath("$.errorCode").value("USER_ALREADY_EXISTS"));
+        // The address is now taken: both a new code and a second registration are refused
+        requestCode(email).andExpect(status().isConflict()).andExpect(jsonPath("$.errorCode").value("USER_ALREADY_EXISTS"));
+        register(body).andExpect(status().isConflict()).andExpect(jsonPath("$.errorCode").value("USER_ALREADY_EXISTS"));
+    }
+
+    @Test
+    @DisplayName("TC-27 Registration without a code, or with someone else's address, is refused")
+    void registrationRequiresCode() throws Exception {
+        Map<String, Object> body = new java.util.HashMap<>(Map.of("fullName", "Imposter", "email", "victim@example.org",
+                "password", "Secret123"));
+        register(body).andExpect(status().isUnprocessableEntity())
+                .andExpect(jsonPath("$.errorCode").value("VERIFICATION_REQUIRED"));
+        body.put("verificationCode", "123456");
+        register(body).andExpect(status().isUnprocessableEntity())
+                .andExpect(jsonPath("$.errorCode").value("CODE_INVALID"));
+    }
+
+    @Test
+    @DisplayName("TC-28 Wrong codes are counted: after 5 the code is dead even if correct; resend is rate-limited")
+    void verificationAttemptsAndResend() throws Exception {
+        String email = "guesser@example.org";
+        requestCode(email).andExpect(status().isAccepted());
+        String code = mailbox.latestCode(email);
+        String wrong = code.equals("000000") ? "111111" : "000000";
+        Map<String, Object> body = new java.util.HashMap<>(Map.of("fullName", "Guesser", "email", email,
+                "password", "Secret123", "verificationCode", wrong));
+        for (int i = 4; i >= 0; i--) {
+            register(body).andExpect(status().isUnprocessableEntity())
+                    .andExpect(jsonPath("$.errorCode").value("CODE_INVALID"));
+        }
+        body.put("verificationCode", code);
+        register(body).andExpect(status().isUnprocessableEntity())
+                .andExpect(jsonPath("$.errorCode").value("CODE_ATTEMPTS_EXCEEDED"));
+        // A new code cannot be requested straight away
+        requestCode(email).andExpect(status().isUnprocessableEntity())
+                .andExpect(jsonPath("$.errorCode").value("CODE_RECENTLY_SENT"));
+        // ...and the refused request did not send another e-mail
+        org.assertj.core.api.Assertions.assertThat(mailbox.inbox(email)).hasSize(1);
+    }
+
+    private org.springframework.test.web.servlet.ResultActions requestCode(String email) throws Exception {
+        return mvc.perform(post("/api/auth/register/request-code").contentType(MediaType.APPLICATION_JSON)
+                .content(json.writeValueAsString(Map.of("email", email))));
+    }
+
+    private org.springframework.test.web.servlet.ResultActions register(Map<String, Object> body) throws Exception {
+        return mvc.perform(post("/api/auth/register").contentType(MediaType.APPLICATION_JSON)
+                .content(json.writeValueAsString(body)));
     }
 
     @Test

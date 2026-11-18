@@ -27,7 +27,11 @@ public record ItsmProperties(
     public record Jwt(@NotBlank String secret, @Min(5) long expirationMinutes, @NotBlank String issuer) {
     }
 
-    public record Security(@Min(1) int maxFailedLogins, @Min(1) int lockMinutes) {
+    /** Login lockout, the one-time-code rules for self-registration and the password-reset link lifetime. */
+    public record Security(@Min(1) int maxFailedLogins, @Min(1) int lockMinutes,
+                           boolean emailVerificationRequired, @Min(1) int verificationCodeMinutes,
+                           @Min(1) int verificationMaxAttempts, @Min(1) int verificationResendSeconds,
+                           @Min(1) int passwordResetMinutes) {
     }
 
     public record Sla(@Min(5_000) long monitorIntervalMs, boolean autoEscalation) {

@@ -48,11 +48,12 @@ public class AuthService {
     private final DtoMapper mapper;
     private final ItsmProperties properties;
     private final Clock clock;
+    private final EmailVerificationService emailVerification;
 
     public AuthService(UserRepository userRepository, IncidentRepository incidentRepository,
                        PasswordEncoder passwordEncoder, JwtService jwtService, AuditService auditService,
                        UserCodeGenerator codeGenerator, CurrentUserProvider currentUser, DtoMapper mapper,
-                       ItsmProperties properties, Clock clock) {
+                       ItsmProperties properties, Clock clock, EmailVerificationService emailVerification) {
         this.userRepository = userRepository;
         this.incidentRepository = incidentRepository;
         this.passwordEncoder = passwordEncoder;
@@ -63,16 +64,24 @@ public class AuthService {
         this.mapper = mapper;
         this.properties = properties;
         this.clock = clock;
+        this.emailVerification = emailVerification;
         this.dummyHash = passwordEncoder.encode("timing-equaliser-not-a-real-password");
     }
 
     private final String dummyHash;
 
-    /** Self-registration always creates an Employee; support staff and admins are created by administrators. */
-    @Transactional
+    /**
+     * Self-registration always creates an Employee; support staff and admins are created by administrators.
+     * The registrant must present the one-time code e-mailed to the address (see EmailVerificationService).
+     * noRollbackFor: a wrong code must still count as a failed attempt.
+     */
+    @Transactional(noRollbackFor = BusinessRuleViolationException.class)
     public AuthResponse register(RegisterRequest request) {
         if (userRepository.existsByEmailIgnoreCase(request.email())) {
             throw new ResourceAlreadyExistsException("User", "email", request.email());
+        }
+        if (properties.security().emailVerificationRequired()) {
+            emailVerification.consumeCode(request.email(), request.verificationCode());
         }
         User user = UserFactory.create(Role.EMPLOYEE, codeGenerator.next(Role.EMPLOYEE), request.fullName(),
                 request.email(), passwordEncoder.encode(request.password()), request.department(), null, null);
@@ -80,7 +89,8 @@ public class AuthService {
         user.recordSuccessfulLogin(clock.instant());
         userRepository.save(user);
         auditService.recordAction(user, AuditAction.USER_CREATED, AuditService.USER, user.getId(), user.getUserCode(),
-                null, Role.EMPLOYEE.name(), "Self-registered as employee " + user.displayName());
+                null, Role.EMPLOYEE.name(), "Self-registered as employee " + user.displayName()
+                        + (properties.security().emailVerificationRequired() ? " (e-mail verified)" : ""));
         return tokenFor(user);
     }
 

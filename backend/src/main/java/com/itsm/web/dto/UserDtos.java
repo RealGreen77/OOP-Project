@@ -37,7 +37,16 @@ public final class UserDtos {
             @NotBlank @Email @Size(max = 160) String email,
             @NotBlank @Pattern(regexp = PASSWORD_RULE, message = PASSWORD_MESSAGE) String password,
             @Size(max = 80) String department,
-            @Pattern(regexp = PHONE_RULE, message = "Invalid phone number") String phone) {}
+            @Pattern(regexp = PHONE_RULE, message = "Invalid phone number") String phone,
+            @Size(max = 12) String verificationCode) {}
+
+    public record VerificationCodeRequest(@NotBlank @Email @Size(max = 160) String email) {}
+
+    public record ForgotPasswordRequest(@NotBlank @Email @Size(max = 160) String email) {}
+
+    public record ResetPasswordRequest(
+            @NotBlank @Size(max = 200) String token,
+            @NotBlank @Pattern(regexp = PASSWORD_RULE, message = PASSWORD_MESSAGE) String newPassword) {}
 
     public record AuthResponse(String token, Instant expiresAt, UserDetail user) {}
 

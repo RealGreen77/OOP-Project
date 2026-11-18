@@ -1,8 +1,8 @@
 import clsx from 'clsx';
-import { Loader2, X } from 'lucide-react';
+import { Eye, EyeOff, Loader2, X } from 'lucide-react';
 import {
   type ButtonHTMLAttributes, type InputHTMLAttributes, type ReactNode, type SelectHTMLAttributes,
-  type TextareaHTMLAttributes, forwardRef, useEffect,
+  type TextareaHTMLAttributes, forwardRef, useEffect, useState,
 } from 'react';
 
 // ------------------------------------------------------------------ Button
@@ -127,6 +127,29 @@ export const Input = forwardRef<HTMLInputElement, InputHTMLAttributes<HTMLInputE
   ({ className, ...rest }, ref) => <input ref={ref} className={clsx(controlClass, className)} {...rest} />,
 );
 Input.displayName = 'Input';
+
+/** Password field with a show/hide toggle. The toggle is a real button, so it works from the keyboard. */
+export const PasswordInput = forwardRef<HTMLInputElement, Omit<InputHTMLAttributes<HTMLInputElement>, 'type'>>(
+  ({ className, ...rest }, ref) => {
+    const [visible, setVisible] = useState(false);
+    return (
+      <div className="relative">
+        <input ref={ref} type={visible ? 'text' : 'password'} className={clsx(controlClass, 'pr-10', className)} {...rest} />
+        <button
+          type="button"
+          onClick={() => setVisible((v) => !v)}
+          aria-label={visible ? 'Hide password' : 'Show password'}
+          title={visible ? 'Hide password' : 'Show password'}
+          aria-pressed={visible}
+          className="absolute inset-y-0 right-0 flex w-10 items-center justify-center rounded-r-lg text-muted hover:text-[var(--text)] focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-brand-600"
+        >
+          {visible ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+        </button>
+      </div>
+    );
+  },
+);
+PasswordInput.displayName = 'PasswordInput';
 
 export const Textarea = forwardRef<HTMLTextAreaElement, TextareaHTMLAttributes<HTMLTextAreaElement>>(
   ({ className, ...rest }, ref) => <textarea ref={ref} className={clsx(controlClass, 'min-h-24', className)} {...rest} />,

@@ -430,6 +430,7 @@ erDiagram
   USERS }o--o{ IT_SERVICES : "technician_services"
   USERS ||--o{ NOTIFICATIONS : receives
   USERS ||--o{ INCIDENT_NOTES : writes
+  USERS ||--o{ PASSWORD_RESET_TOKENS : "reset links"
   CATEGORIES ||--o{ CATEGORY_KEYWORDS : has
   CATEGORIES ||--o{ INCIDENTS : classifies
   IT_SERVICES ||--o{ INCIDENTS : affected
@@ -493,6 +494,21 @@ erDiagram
     varchar setting_key PK
     varchar setting_value
   }
+  PASSWORD_RESET_TOKENS {
+    bigint id PK
+    bigint user_id FK
+    varchar token_hash UK "SHA-256 of the e-mailed token"
+    timestamptz expires_at
+    timestamptz used_at
+  }
+  EMAIL_VERIFICATIONS {
+    bigint id PK
+    varchar email UK
+    varchar code_hash "BCrypt of the 6-digit code"
+    timestamptz expires_at
+    int attempts
+    timestamptz last_sent_at
+  }
 ```
 
 Notes:
@@ -504,8 +520,10 @@ Notes:
 - `audit_entries` keeps denormalised actor data, so the history survives user changes.
 - Indexes cover every search filter (status, priority, service, category, assignee, reporter,
   reported_at).
-- The schema is owned by Flyway (`V1__initial_schema.sql`). Hibernate runs in `validate` mode,
-  and the test suite runs the same migration, so drift between entities and schema fails the build.
+- The schema is owned by Flyway (`V1__initial_schema.sql`, `V2__account_security.sql`). Hibernate runs in `validate` mode,
+  and the test suite runs the same migrations, so drift between entities and schema fails the build.
+- `email_verifications` and `password_reset_tokens` store only hashes of the codes and links sent by
+  e-mail, never the secrets themselves.
 
 ## 6. Algorithms and rationale
 
@@ -556,6 +574,16 @@ beyond capacity raises `WorkloadExceededException`.
 ## 7. Security design
 - **Authentication:** BCrypt password hashes; stateless HMAC-SHA256 JWT (8 h); generic login
   errors; constant-time path for unknown e-mails; **lockout** for 15 minutes after 5 failures.
+- **E-mail verification at registration:** self-registration needs a one-time 6-digit code e-mailed to
+  the address (`EmailVerificationService`), so nobody can open an account in someone else's name. The
+  code is stored only as a BCrypt hash, expires after 10 minutes, allows 5 wrong attempts, can be
+  re-sent after 30 seconds and is consumed on use. Accounts created by administrators are vouched for.
+- **Forgot password:** `PasswordResetService` e-mails a single-use link carrying 256 random bits; only
+  its SHA-256 hash is stored. Links expire after 30 minutes, a new link revokes older ones, at most
+  one link per minute is sent, and the response is identical for unknown addresses (no account
+  enumeration). A successful reset clears any lockout and is audited.
+- **Passwords in the UI:** every password field has a show/hide toggle, and new passwords must be
+  typed twice (registration, change password, reset).
 - **Authorization:** three layers.
   1. URL rules (`/api/admin/**` is admin only).
   2. `@PreAuthorize` on permissions that are **derived polymorphically from the `User` subclass**.

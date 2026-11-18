@@ -3,7 +3,7 @@ import { type FormEvent, useState } from 'react';
 import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { errorMessage } from '../api/client';
 import { useAuth } from '../auth/AuthContext';
-import { Button, ErrorBox, Field, Input } from '../components/ui';
+import { Button, ErrorBox, Field, Input, PasswordInput } from '../components/ui';
 
 const DEMO_ACCOUNTS = [
   { label: 'Employee', email: 'employee@itsm.local', who: 'Asha Rao · reports incidents' },
@@ -71,8 +71,9 @@ export function LoginPage() {
               <Input type="email" autoComplete="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
             </Field>
             <Field label="Password">
-              <Input type="password" autoComplete="current-password" required value={password} onChange={(e) => setPassword(e.target.value)} />
+              <PasswordInput autoComplete="current-password" required value={password} onChange={(e) => setPassword(e.target.value)} />
             </Field>
+            <div className="-mt-2 text-right text-sm"><Link to="/forgot-password" className="font-medium text-brand-600 hover:underline">Forgot password?</Link></div>
             <Button type="submit" className="w-full" loading={busy}>Sign in</Button>
           </form>
           <p className="text-center text-sm text-muted">
