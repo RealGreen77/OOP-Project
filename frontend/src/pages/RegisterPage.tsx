@@ -1,10 +1,11 @@
-import { MailCheck } from 'lucide-react';
+import { MailCheck, Moon, Sun } from 'lucide-react';
 import { type FormEvent, useEffect, useState } from 'react';
 import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { errorMessage, problemOf } from '../api/client';
 import { api } from '../api/endpoints';
 import { useAuth } from '../auth/AuthContext';
 import { Button, ErrorBox, Field, Input, PasswordInput } from '../components/ui';
+import { useTheme } from '../hooks/useTheme';
 
 const PASSWORD_HINT = '8+ characters with at least one letter and one digit';
 
@@ -15,6 +16,7 @@ const PASSWORD_HINT = '8+ characters with at least one letter and one digit';
  */
 export function RegisterPage() {
   const { user, register } = useAuth();
+  const { theme, toggle } = useTheme();
   const navigate = useNavigate();
   const [form, setForm] = useState({ fullName: '', email: '', password: '', confirmPassword: '', department: '', phone: '' });
   const [step, setStep] = useState<'details' | 'code'>('details');
@@ -80,7 +82,18 @@ export function RegisterPage() {
   }
 
   return (
-    <div className="flex min-h-full items-center justify-center p-6">
+    <div className="relative flex min-h-full items-center justify-center p-6">
+      <div className="absolute right-4 top-4 z-10">
+        <button
+          type="button"
+          onClick={toggle}
+          className="rounded-md p-2 text-muted hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors"
+          aria-label="Toggle theme"
+          title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+        >
+          {theme === 'dark' ? <Sun className="size-5" /> : <Moon className="size-5" />}
+        </button>
+      </div>
       <div className="surface w-full max-w-md space-y-4 rounded-xl border border-base p-6 shadow-sm">
         <div>
           <h1 className="text-xl font-semibold">Create your account</h1>

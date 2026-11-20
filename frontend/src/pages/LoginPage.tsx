@@ -1,9 +1,10 @@
-import { ShieldCheck } from 'lucide-react';
+import { Moon, ShieldCheck, Sun } from 'lucide-react';
 import { type FormEvent, useRef, useState } from 'react';
 import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { errorMessage } from '../api/client';
 import { useAuth } from '../auth/AuthContext';
 import { Button, ErrorBox, Field, Input, PasswordInput } from '../components/ui';
+import { useTheme } from '../hooks/useTheme';
 
 const DEMO_ACCOUNTS = [
   { label: 'Employee', email: 'employee@itsm.local', who: 'Asha Rao · reports incidents' },
@@ -16,6 +17,7 @@ const DEMO_PASSWORD = 'Password@123';
 
 export function LoginPage() {
   const { user, login } = useAuth();
+  const { theme, toggle } = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
   const [email, setEmail] = useState('');
@@ -42,22 +44,35 @@ export function LoginPage() {
   }
 
   return (
-    <div className="grid min-h-full lg:grid-cols-2">
-      <div className="hidden flex-col justify-between bg-gradient-to-br from-brand-700 via-brand-600 to-indigo-900 p-10 text-white lg:flex">
+    <div className="relative grid min-h-full lg:grid-cols-2">
+      {/* Theme toggle in top right */}
+      <div className="absolute right-4 top-4 z-10">
+        <button
+          type="button"
+          onClick={toggle}
+          className="rounded-md p-2 text-muted hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors"
+          aria-label="Toggle theme"
+          title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+        >
+          {theme === 'dark' ? <Sun className="size-5" /> : <Moon className="size-5" />}
+        </button>
+      </div>
+
+      <div className="hidden flex-col justify-between bg-gradient-to-br from-brand-700 via-brand-600 to-indigo-900 dark:from-slate-900 dark:via-brand-950 dark:to-slate-900 p-10 text-white lg:flex">
         <div className="flex items-center gap-2 text-lg font-semibold"><ShieldCheck /> I-ITSM</div>
         <div>
           <h1 className="text-4xl font-semibold leading-tight">Intelligent IT Service Management</h1>
-          <p className="mt-4 max-w-md text-brand-100">
+          <p className="mt-4 max-w-md text-brand-100 dark:text-slate-300">
             Report, classify, prioritise, assign and resolve IT incidents with automatic SLA tracking,
             duplicate detection, smart technician recommendations and real-time notifications.
           </p>
-          <ul className="mt-8 grid max-w-md grid-cols-2 gap-3 text-sm text-brand-100">
+          <ul className="mt-8 grid max-w-md grid-cols-2 gap-3 text-sm text-brand-100 dark:text-slate-300">
             <li>• State-driven lifecycle</li><li>• Pluggable strategies</li>
             <li>• Predictive SLA risk</li><li>• Incident correlation</li>
             <li>• Live dashboards</li><li>• Complete audit trail</li>
           </ul>
         </div>
-        <p className="text-xs text-brand-200">CS F213 Object-Oriented Programming · BITS Pilani</p>
+        <div />
       </div>
 
       <div className="flex items-center justify-center p-6">

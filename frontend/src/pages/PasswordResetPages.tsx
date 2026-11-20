@@ -1,14 +1,27 @@
-import { MailCheck } from 'lucide-react';
+import { MailCheck, Moon, Sun } from 'lucide-react';
 import { type FormEvent, type ReactNode, useState } from 'react';
 import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { toast } from 'sonner';
 import { errorMessage, problemOf } from '../api/client';
 import { api } from '../api/endpoints';
 import { Button, ErrorBox, Field, Input, PasswordInput } from '../components/ui';
+import { useTheme } from '../hooks/useTheme';
 
 function AuthCard({ title, subtitle, children }: { title: string; subtitle: string; children: ReactNode }) {
+  const { theme, toggle } = useTheme();
   return (
-    <div className="flex min-h-full items-center justify-center p-6">
+    <div className="relative flex min-h-full items-center justify-center p-6">
+      <div className="absolute right-4 top-4 z-10">
+        <button
+          type="button"
+          onClick={toggle}
+          className="rounded-md p-2 text-muted hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors"
+          aria-label="Toggle theme"
+          title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+        >
+          {theme === 'dark' ? <Sun className="size-5" /> : <Moon className="size-5" />}
+        </button>
+      </div>
       <div className="surface w-full max-w-md space-y-4 rounded-xl border border-base p-6 shadow-sm">
         <div>
           <h1 className="text-xl font-semibold">{title}</h1>
