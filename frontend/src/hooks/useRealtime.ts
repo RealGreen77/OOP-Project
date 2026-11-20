@@ -39,8 +39,10 @@ export function useRealtime(enabled: boolean, onOpenIncident: (id: number) => vo
     };
 
     const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
+    const defaultWsUrl = `${protocol}://${window.location.host}/ws`;
+    const brokerURL = (import.meta.env.VITE_WS_URL as string | undefined) || defaultWsUrl;
     const client = new Client({
-      brokerURL: `${protocol}://${window.location.host}/ws`,
+      brokerURL,
       connectHeaders: { Authorization: `Bearer ${token}` },
       reconnectDelay: 5000,
       heartbeatIncoming: 20000,

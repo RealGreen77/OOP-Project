@@ -16,7 +16,8 @@ export const tokenStore = {
 };
 
 /** Shared HTTP client: adds the JWT and turns 401s into a logout. */
-export const http = axios.create({ baseURL: '/api', timeout: 20000 });
+const apiBase = (import.meta.env.VITE_API_URL as string | undefined) || '/api';
+export const http = axios.create({ baseURL: apiBase, timeout: 20000 });
 
 http.interceptors.request.use((config) => {
   const token = tokenStore.get();
