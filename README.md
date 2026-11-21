@@ -50,7 +50,7 @@ To run the backend against your own PostgreSQL instead, use `./mvnw spring-boot:
 
 ### Demo accounts (password `Password@123`)
 
-The login page has one-click buttons for each of these.
+The login page has one click buttons for each of these.
 
 | Role | E-mail | Notes |
 |---|---|---|
