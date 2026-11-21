@@ -24,7 +24,7 @@ export const api = {
     login: (email: string, password: string) => data<AuthResponse>(http.post('/auth/login', { email, password })),
     register: (body: Record<string, unknown>) => data<AuthResponse>(http.post('/auth/register', body)),
     requestCode: (email: string) =>
-      data<{ email: string; expiresInMinutes: number; resendAfterSeconds: number }>(http.post('/auth/register/request-code', { email })),
+      data<{ email: string; expiresInMinutes: number; resendAfterSeconds: number; devCode?: string }>(http.post('/auth/register/request-code', { email })),
     forgotPassword: (email: string) => data(http.post('/auth/password/forgot', { email })),
     resetPassword: (token: string, newPassword: string) => data(http.post('/auth/password/reset', { token, newPassword })),
     me: () => data<User>(http.get('/auth/me')),

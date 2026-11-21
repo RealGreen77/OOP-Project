@@ -21,6 +21,7 @@ export function RegisterPage() {
   const [form, setForm] = useState({ fullName: '', email: '', password: '', confirmPassword: '', department: '', phone: '' });
   const [step, setStep] = useState<'details' | 'code'>('details');
   const [code, setCode] = useState('');
+  const [devCode, setDevCode] = useState<string | null>(null);
   const [resendIn, setResendIn] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
@@ -53,8 +54,14 @@ export function RegisterPage() {
     try {
       const res = await api.auth.requestCode(form.email.trim());
       setStep('code');
-      setCode('');
       setResendIn(res.resendAfterSeconds);
+      if (res.devCode) {
+        setDevCode(res.devCode);
+        setCode(res.devCode);
+      } else {
+        setDevCode(null);
+        setCode('');
+      }
     } catch (err) {
       fail(err);
     } finally {
@@ -123,10 +130,20 @@ export function RegisterPage() {
           </form>
         ) : (
           <form onSubmit={createAccount} className="space-y-4">
-            <div className="flex gap-3 rounded-lg border border-base p-3 text-sm">
-              <MailCheck className="mt-0.5 size-5 shrink-0 text-brand-600" />
-              <p>We sent a 6-digit code to <span className="font-medium">{form.email.trim()}</span>. It expires in 10 minutes. Check your spam folder if it does not arrive.</p>
-            </div>
+            {devCode ? (
+              <div className="flex gap-3 rounded-lg border border-brand-200 bg-brand-50/60 dark:border-brand-900 dark:bg-brand-950/40 p-3 text-sm">
+                <MailCheck className="mt-0.5 size-5 shrink-0 text-brand-600" />
+                <div>
+                  <p className="font-medium text-brand-700 dark:text-brand-300">Demo / Simulation Mode</p>
+                  <p className="mt-0.5 text-xs text-muted">Cloud SMTP is simulated on the free tier. Your verification OTP is <strong className="font-mono text-brand-600 dark:text-brand-400">{devCode}</strong> (auto-filled below).</p>
+                </div>
+              </div>
+            ) : (
+              <div className="flex gap-3 rounded-lg border border-base p-3 text-sm">
+                <MailCheck className="mt-0.5 size-5 shrink-0 text-brand-600" />
+                <p>We sent a 6-digit code to <span className="font-medium">{form.email.trim()}</span>. It expires in 10 minutes. Check your spam folder if it does not arrive.</p>
+              </div>
+            )}
             <Field label="Verification code" required>
               <Input
                 required

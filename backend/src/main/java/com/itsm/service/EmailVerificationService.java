@@ -56,7 +56,11 @@ public class EmailVerificationService {
         this.clock = clock;
     }
 
-    public record CodeSent(String email, int expiresInMinutes, int resendAfterSeconds) {}
+    public record CodeSent(String email, int expiresInMinutes, int resendAfterSeconds, String devCode) {
+        public CodeSent(String email, int expiresInMinutes, int resendAfterSeconds) {
+            this(email, expiresInMinutes, resendAfterSeconds, null);
+        }
+    }
 
     /** Generates and e-mails a fresh code, replacing any pending one for the address. */
     @Transactional
@@ -74,7 +78,7 @@ public class EmailVerificationService {
         }
 
         String code = String.format("%06d", random.nextInt(1_000_000));
-        deliver(email, code);
+        DeliveryStatus status = deliver(email, code);
 
         String hash = passwordEncoder.encode(code);
         Instant expiry = now.plusSeconds(rules.verificationCodeMinutes() * 60L);
@@ -83,7 +87,8 @@ public class EmailVerificationService {
         } else {
             pending.issue(hash, now, expiry);
         }
-        return new CodeSent(email, rules.verificationCodeMinutes(), rules.verificationResendSeconds());
+        String devCode = (status == DeliveryStatus.SIMULATED) ? code : null;
+        return new CodeSent(email, rules.verificationCodeMinutes(), rules.verificationResendSeconds(), devCode);
     }
 
     /**
@@ -117,7 +122,7 @@ public class EmailVerificationService {
         verifications.delete(pending); // single use
     }
 
-    private void deliver(String email, String code) {
+    private DeliveryStatus deliver(String email, String code) {
         String body = """
                 Your I-ITSM verification code is: %s
 
@@ -136,6 +141,7 @@ public class EmailVerificationService {
             // No real mailbox behind this address (log mode or a demo domain): surface the code to the developer.
             log.info("[SIMULATED VERIFICATION CODE] to={} code={}", email, code);
         }
+        return status;
     }
 
     private static String normalise(String email) {
