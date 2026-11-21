@@ -31,9 +31,10 @@ spring:
     properties:
       mail.smtp.auth: ${SMTP_AUTH:false}
       mail.smtp.starttls.enable: ${SMTP_STARTTLS:false}
-      mail.smtp.connectiontimeout: 3000
-      mail.smtp.timeout: 3000
-      mail.smtp.writetimeout: 3000
+      mail.smtp.ssl.enable: ${SMTP_SSL:false}
+      mail.smtp.connectiontimeout: 10000
+      mail.smtp.timeout: 10000
+      mail.smtp.writetimeout: 10000
   jackson:
     serialization:
       write-dates-as-timestamps: false
